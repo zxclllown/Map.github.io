@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="main.css">
+    <meta charset="utf-8" />
+    <title>Карта</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    
+    <!-- Подключение CSS MapLibre -->
+    <link href="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.css" rel="stylesheet" />
+    
+    <link rel="stylesheet" href="main.css">
+    <!-- Подключение JavaScript MapLibre -->
+    <script src="https://unpkg.com/maplibre-gl@2.4.0/dist/maplibre-gl.js"></script>
+    
+    <style>
+        /* Стиль для контейнера карты */
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    </style>
+    
+</head>
+<body>
+    <div id="sidebar" class="sidebar hidden">
+        <div class="sidebar-content">
+            <button id="close-sidebar">Закрыть</button>
+            <div class="photos">
+                <img src="photo1.jpg" alt="Фото 1">
+                <img src="photo2.jpg" alt="Фото 2">
+            </div>
+            <div class="text-content">
+                <p id="text1">Текст 1</p>
+                <p id="text2">Текст 2</p>
+                <p id="text3">Текст 3</p>
+                <p id="text4">Текст 4</p>
+                <p id="text5">Текст 5</p>
+            </div>
+        </div>
+    </div>
+    <style>
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+        .custom-popup {
+            background: #fff;
+            color: #333;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            max-width: 200px;
+        }
+        .custom-popup h3 {
+            margin: 0 0 10px;
+            font-size: 16px;
+        }
+        .custom-popup p {
+            margin: 0;
+            font-size: 14px;
+        }
+    </style>
+
+<!-- Контейнер для карты -->
+<div id="map"></div>
+
+
+<script>
+    // Инициализация карты
+    var map = new maplibregl.Map({
+        container: 'map', // id элемента div для карты
+        style: 'https://demotiles.maplibre.org/style.json', // URL стиля карты (open-source пример)
+        center: [37.618423, 55.751244], // Координаты центра (Москва)
+        zoom: 5 // Уровень зума
+    });
+
+    // Добавление контролов для зума и вращения карты
+    map.addControl(new maplibregl.NavigationControl());
+
+
+    const customPopupContent = `
+        <div class="custom-popup">
+            <div style="display: flex; gap: 5px; margin-bottom: 10px;">
+                <img src="photo1.jpg" alt="Photo 1" style="width: 45%; height: auto; border-radius: 4px;">
+                <img src="photo2.jpg" alt="Photo 2" style="width: 45%; height: auto; border-radius: 4px;">
+            </div>
+            <h3>Заголовок</h3>
+            <p>Текст 1</p>
+            <p>Текст 2</p>
+            <p>Текст 3</p>
+            <p>Текст 4</p>
+            <p>Текст 5</p>
+        </div>`
+        
+ 
+
+
+// Всплывающее окно (popup) при клике на маркер
+const popup = new maplibregl.Popup({ offset: 25 })
+.setText('Это Москва');
+
+
+map.on('load', function () {
+map.addSource('places', {
+    'type': 'geojson',
+    'data': {
+        'type': 'FeatureCollection',
+        'features': [
+            {
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [56.2255394003364, 37.47910996519349]
+                },
+                'properties': {
+                    'title': 'Москва',
+                    'description': 'Столица России'
+                }
+            }
+        ]
+    }
+});
+
+
+const sidebar = document.getElementById('sidebar');
+const closeSidebarButton = document.getElementById('close-sidebar');
+
+// Функция для отображения окна
+function showSidebar(content) {
+    const sidebarContent = sidebar.querySelector('.sidebar-content');
+    sidebarContent.innerHTML = `
+        <button id="close-sidebar">Закрыть</button>
+        ${content}
+    `;
+    sidebar.classList.remove('hidden');
+    sidebar.classList.add('visible');
+
+    // Повторно привязать событие к кнопке закрытия (после изменения содержимого)
+    document.getElementById('close-sidebar').addEventListener('click', hideSidebar);
+}
+
+// Функция для скрытия окна
+function hideSidebar() {
+    sidebar.classList.remove('visible');
+    sidebar.classList.add('hidden');
+}
+
+// Привязать к маркерам отображение окна
+const customContent1 = `
+    <img src="sloboda.jpg" width="660" height="660">
+    <h1 style="font-size: 40px; font-family: 'Calibri', serif; text-align: center;">Ремесленная Слобода Глушенковых</h1>
+    <h1 style="font-size: 35px; font-family: 'Calibri', serif; ">Наш адрес:</h1>
+    <p style="font-size: 25px; font-family: 'Calibri', serif;"> Москва, Московская обл, город Дмитров, д. Новлянки, д 45 </p>
+    <h1 style="font-size: 35px; font-family: 'Calibri', serif;">Наши контакты:</h1>
+    <p style="font-size: 25px; font-family: 'Calibri', serif;"> +79166322474 </p>
+    <p2 style="font-size: 25px; font-family: 'Calibri', serif;"> biblomans@gmail.com </p2>
+    <h1 style="font-size: 35px; font-family: 'Calibri', serif;"> Кратктная информация: </h1>
+    <p style="font-size: 25px; font-family: 'Calibri', serif;"> Столярная мастерская, русская печь, пекарня, кузница, пасека, мёд всего в 40 км от Москвы по Дмитровскому шоссе, на склоне горнолыжного клуба Л. Тягачёва.</p>
+`;
+const marker = new maplibregl.Marker()
+    .setLngLat([37.47910996519349, 56.2255394003364])
+    .addTo(map)
+    .getElement()
+    .addEventListener('click', () => showSidebar(customContent1));
+
+    const customContent2 = `
+    <img src="mlyako.png" width="660" height="660">
+    <h1 style="font-size: 40px; font-family: 'Calibri', serif; text-align: center;">Мляко</h1>
+    <h1 style="font-size: 35px; font-family: 'Calibri', serif; ">Наш адрес:</h1>
+    <p style="font-size: 25px; font-family: 'Calibri', serif;"> Москва,Московская область, г. о. Коломна, ул. Чкалова, д. 24А, офис 20, помещ. 9 </p>
+    <h1 style="font-size: 35px; font-family: 'Calibri', serif;">Наши контакты:</h1>
+    <p2 style="font-size: 25px; font-family: 'Calibri', serif;"> ovik.agro@gmail.com </p2>
+`;
+const marker2 = new maplibregl.Marker()
+    .setLngLat([38.79615696130525, 55.07486550297397])
+    .addTo(map)
+    .getElement()
+    .addEventListener('click', () => showSidebar(customContent2));
+
+    const customContent3 = `
+    <img src="medsad.jpg" width="660" height="660">
+    <h1 style="font-size: 40px; font-family: 'Calibri', serif; text-align: center;">Пасека " Медовый Сад"</h1>
+    <h1 style="font-size: 35px; font-family: 'Calibri', serif; ">Наш адрес:</h1>
+    <p style="font-size: 25px; font-family: 'Calibri', serif;"> Г. Серпухов, Московская область, г. Серпухов, Клейменово-1, пер. Медовый Сад. д. 7</p>
+    <h1 style="font-size: 35px; font-family: 'Calibri', serif;">Наши контакты:</h1>
+    <p style="font-size: 25px; font-family: 'Calibri', serif;"> +79031707000</p>
+    <p2 style="font-size: 25px; font-family: 'Calibri', serif;"> info@medovysad.ru </p2>
+    <p2 style="font-size: 25px; font-family: 'Calibri', serif;">https://medovysad.ru/</p2>
+    <h1 style="font-size: 35px; font-family: 'Calibri', serif;"> Владелец КФХ: </h1>
+    <p style="font-size: 25px; font-family: 'Calibri', serif;"> Иван Козярский</p>
+`;
+const marker3 = new maplibregl.Marker()
+    .setLngLat([37.33131232001764, 55.0274246660079])
+    .addTo(map)
+    .getElement()
+    .addEventListener('click', () => showSidebar(customContent3));
+
+    const customContent4 = `
+    <img src="dobrput.jpg" width="660" height="660">
+    <h1 style="font-size: 40px; font-family: 'Calibri', serif; text-align: center;">КФХ «ДОБРЫЙ ПУТЬ»</h1>
+    <h1 style="font-size: 35px; font-family: 'Calibri', serif; ">Наш адрес:</h1>
+    <p style="font-size: 25px; font-family: 'Calibri', serif;"> село Лелечи,Московская обл, г Егорьевск, с. Лелечи, д 47, помещ 2</p>
+    <h1 style="font-size: 35px; font-family: 'Calibri', serif;">Наши контакты:</h1>
+    <p style="font-size: 25px; font-family: 'Calibri', serif;"> +79150070794</p>
+    <p2 style="font-size: 25px; font-family: 'Calibri', serif;"> bobodzhonov.d@yandex.ru </p2>
+    <h1 style="font-size: 35px; font-family: 'Calibri', serif;"> Краткая информация: </h1>
+    <p style="font-size: 25px; font-family: 'Calibri', serif;"> Разведение овец и коз</p>
+`;
+const marker4 = new maplibregl.Marker()
+    .setLngLat([39.238245,55.165868])
+    .addTo(map)
+    .getElement()
+    .addEventListener('click', () => showSidebar(customContent4));
+
+    const customContent5 = `
+    <img src="svobtru.jpg" width="660" height="660">
+    <h1 style="font-size: 40px; font-family: 'Calibri', serif; text-align: center;">КФХ "Свободный труд"</h1>
+    <h1 style="font-size: 35px; font-family: 'Calibri', serif; ">Наш адрес:</h1>
+    <p style="font-size: 25px; font-family: 'Calibri', serif;"> Москва,Московская обл, г Дмитров, д. Целеево, д 10</p>
+    <h1 style="font-size: 35px; font-family: 'Calibri', serif;">Наши контакты:</h1>
+    <p style="font-size: 25px; font-family: 'Calibri', serif;"> +79266777007</p>
+    <p2 style="font-size: 25px; font-family: 'Calibri', serif;"> opermon@yandex.ru </p2>
+`;
+const marker5 = new maplibregl.Marker()
+    .setLngLat([37.413669582728545, 56.23730382472214])
+    .addTo(map)
+    .getElement()
+    .addEventListener('click', () => showSidebar(customContent5));
+
+    const customContent6 = `
+    <img src="zol.jpg" width="660" height="660">
+    <h1 style="font-size: 40px; font-family: 'Calibri', serif; text-align: center;">КФХ «ЗОЛИНО»</h1>
+    <h1 style="font-size: 35px; font-family: 'Calibri', serif; ">Наш адрес:</h1>
+    <p style="font-size: 25px; font-family: 'Calibri', serif;"> д. Золино,Московская обл, г Клин, д. Золино</p>
+    <h1 style="font-size: 35px; font-family: 'Calibri', serif;">Наши контакты:</h1>
+    <p style="font-size: 25px; font-family: 'Calibri', serif;"> +79031983336</p>
+    <p2 style="font-size: 25px; font-family: 'Calibri', serif;"> Zolino.Paseka@yandex.ru </p2>
+    <h1 style="font-size: 35px; font-family: 'Calibri', serif;"> Краткая информация: </h1>
+    <p style="font-size: 25px; font-family: 'Calibri', serif;"> Мёд и пчелопродукты</p>
+`;
+const marker6 = new maplibregl.Marker()
+    .setLngLat([36.85604130717891, 56.344606857219176])
+    .addTo(map)
+    .getElement()
+    .addEventListener('click', () => showSidebar(customContent6));
+
+    const customContent7 = `
+    <img src="serg.jpg" width="660" height="660">
+    <h1 style="font-size: 40px; font-family: 'Calibri', serif; text-align: center;">ООО "СЕРГИЕВСКИЕ ДЕЛИКАТЕСЫ"</h1>
+    <h1 style="font-size: 35px; font-family: 'Calibri', serif; ">Наш адрес:</h1>
+    <p style="font-size: 25px; font-family: 'Calibri', serif;"> Москва,Московская область,Коломенский р-н,с. Троицкие Озерки,ул.Центральная,дом 40</p>
+    <h1 style="font-size: 35px; font-family: 'Calibri', serif;">Наши контакты:</h1>
+    <p style="font-size: 25px; font-family: 'Calibri', serif;"> +79269018254</p>
+    <p2 style="font-size: 25px; font-family: 'Calibri', serif;"> Kalynsergei@yandex.ru </p2>
+`;
+const marker7 = new maplibregl.Marker()
+    .setLngLat([38.948270, 55.090618])
+    .addTo(map)
+    .getElement()
+    .addEventListener('click', () => showSidebar(customContent7));
+
+map.addLayer({
+    'id': 'places',
+    'type': 'circle',
+    'source': 'places',
+    'paint': {
+        'circle-radius': 5,
+        'circle-color': '#ff0000'
+    }
+});
+});
+
+
+map.on('load', function () {
+map.addLayer({
+    'id': '3d-buildings',
+    'source': 'composite',
+    'source-layer': 'building',
+    'filter': ['==', 'extrude', 'true'],
+    'type': 'fill-extrusion',
+    'minzoom': 15,
+    'paint': {
+        'fill-extrusion-color': '#aaa',
+        'fill-extrusion-height': ['get', 'height'],
+        'fill-extrusion-base': ['get', 'min_height'],
+        'fill-extrusion-opacity': 0.6
+    }
+});
+});
+
+// Ограничение области карты
+map.on('load', function () {
+// Добавляем источник данных GeoJSON
+map.addSource('geosourcesss', {
+    'type': 'geojson',
+    'data': 'simple_map.geojson' // укажи путь к локальному файлу или URL
+});
+
+map.addLayer({
+            'id': 'geojsonnn-layer',
+            'type': 'fill', // Тип слоя: fill для полигонов, line для линий и т.д.
+            'source': 'geosourcesss', // Источник данных
+            'paint': {
+                'fill-color': '#ffffff', // Цвет заливки
+                'fill-opacity': 1 // Прозрачность заливки
+            }})
+        });
+
+map.on('load', function () {
+// Добавляем источник данных GeoJSON
+map.addSource('geosource', {
+    'type': 'geojson',
+    'data': 'Moscow Region.geojson' // укажи путь к локальному файлу или URL
+});
+
+map.addLayer({
+            'id': 'geojson-layer',
+            'type': 'fill', // Тип слоя: fill для полигонов, line для линий и т.д.
+            'source': 'geosource', // Источник данных
+            'paint': {
+                'fill-color': '#e7eee1', // Цвет заливки
+                'fill-opacity': 0.9 // Прозрачность заливки
+            }})
+
+map.addLayer({
+    'id': 'geojsonlineslayer',
+    'type': 'line',
+    'source': 'geosource',
+    'layout': {
+    'line-join': 'round',
+    'line-cap': 'round'} ,
+    'paint': {
+        'line-color': '#cad4c5',
+        'line-width': 13,
+        'line-opacity': 1
+        }
+});
+// Если нужны линии вместо заливки
+map.addLayer({
+    'id': 'geojsonlinelayer',
+    'type': 'line',
+    'source': 'geosource',
+    'layout': {
+    'line-join': 'round',
+    'line-cap': 'round'} ,
+    'paint': {
+        'line-color': '#93BE90',
+        'line-width': 3.5,
+        'line-opacity': 1
+    }
+});
+});
+
+
+map.on('load', function () {
+// Добавляем источник данных GeoJSON
+map.addSource('geo', {
+    'type': 'geojson',
+    'data': 'ao.geojson' // укажи путь к локальному файлу или URL
+});
+
+map.addLayer({
+            'id': 'g-layer',
+            'type': 'fill', // Тип слоя: fill для полигонов, line для линий и т.д.
+            'source': 'geo', // Источник данных
+            'paint': {
+                'fill-color': '#ffffff', // Цвет заливки
+                'fill-opacity': 0.9 // Прозрачность заливки
+            }})
+// Если нужны линии вместо заливки
+map.addLayer({
+    'id': 'geolayer',
+    'type': 'line',
+    'source': 'geo',
+    'layout': {
+    'line-join': 'round',
+    'line-cap': 'round'} ,
+    'paint': {
+        'line-color': '#B6CAB5',
+        'line-width': 5
+    }
+});
+});
+
+
+
+var bounds = [
+   [32.725889, 54.058756], // Юго-западный угол
+  [42.846153, 57.139497]  // Северо-восточный угол
+];
+map.setMaxBounds(bounds);
+
+</script>
+
+</body>
+</html>
